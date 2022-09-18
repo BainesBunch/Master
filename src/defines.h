@@ -28,12 +28,13 @@
 // Set parameters of IMU and board used
 
 #define IMU_ROTATION DEG_180
-#define PACKET_ROTATION_DATA 17
 
 #define MPU6050_t  0x68
 #define ICM_20948_t  0x40
 #define BNO_080_t  0x14
-#define BATTERY_MONITOR BAT_EXTERNAL
+
+#define IMUCount 8
+
 #define BATTERY_SHIELD_RESISTANCE 180 //130k BatteryShield, 180k SlimeVR or fill in external resistor value in kOhm
 
   #define PIN_IMU_SDA D2
