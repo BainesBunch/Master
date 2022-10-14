@@ -26,7 +26,7 @@
 
 #include <stdint.h>
 
-namespace SlimeVR
+namespace Octo_SlimeVR
 {
     namespace Configuration
     {
