@@ -20,15 +20,35 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
 */
-#include <i2cscan.h>
 #include "sensorfactory.h"
-#include "mpu6050sensor.h"
 #include "ICM20948Sensor.h"
-#include "mpu9250sensor.h"
 #include "bno080sensor.h"
+#include "mpu6050sensor.h"
+#include "mpu9250sensor.h"
+#include "sensor.h"
+#include <i2cscan.h>
+#include "EEPROM_I2C/EEPROM_I2C.h"
+
+boolean Sensor_Calibrated = false;
 
 SensorFactory::SensorFactory()
 {
+
+}
+
+void SensorFactory::IMU_Int_Triggered(uint8_t IMU_ID)
+{
+    Serial.print(F("Int Triggerd : "));
+    Serial.println(IMU_ID);
+    if (this->IMUs[IMU_ID]->getSensorType() == BNO_080_t)
+    {
+        this->IMUs[IMU_ID]->Int_Fired();
+    }
+}
+
+boolean SensorFactory::GetSensorOnline(uint8_t IMU_ID)
+{
+    return (this->IMUs[IMU_ID]->getSensorState() == SENSOR_OK);
 }
 
 SensorFactory::~SensorFactory()
@@ -85,6 +105,14 @@ void SensorFactory::create()
                     this->IMUs[SensorCount + (BankCount * IMUCount)] = new MPU9250Sensor(DeviceParams.DeviceAddress);
                     this->IMUs[SensorCount + (BankCount * IMUCount)]->Connected = true;
                     Serial.println("Found MPU6050 + QMC5883L");
+
+                    // if (configuration.getCalibration(SensorCount + (BankCount + IMUCount)).type != SlimeVR::Configuration::CalibrationConfigType::MPU9250) {
+                    //     UI::DrawCalibrationAdvice(SensorCount + (BankCount + IMUCount));
+                    // }
+
+                    // if(EEPROM_I2C::checkForCalibration((SensorCount + (BankCount * IMUCount)) < IMUCount ? eepromBankAddressA : eepromBankAddressB)){
+                    // UI::DrawCalibrationAdvice(SensorCount + (BankCount * IMUCount));
+                    // }
                 }
                 break;
             case ICM_20948_t:
@@ -141,6 +169,23 @@ void SensorFactory::init()
     }
 }
 
+boolean SensorFactory::CalibrationEvent()
+{
+    return Sensor_Calibrated;
+}
+
+void SensorFactory::clearCalibrations()
+{
+    for (int BankCount = 0; BankCount < 2; BankCount++)
+    {
+        for (int SensorCount = 0; SensorCount < IMUCount; SensorCount++)
+        {
+            SetIMU(SensorCount + (BankCount * IMUCount));
+            EEPROM_I2C::clearCalibration((SensorCount + (BankCount * IMUCount)) < IMUCount ? eepromBankAddressA : eepromBankAddressB);
+        }
+    }
+}
+
 void SensorFactory::motionSetup()
 {
     Serial.println("Setting up Motion Engines");
@@ -159,7 +204,7 @@ void SensorFactory::motionSetup()
             if (IMUs[IMUID]->Connected)
             {
                 ESP.wdtDisable();
-                IMUs[IMUID]->motionSetup();
+                Sensor_Calibrated |= IMUs[IMUID]->motionSetup();
                 ESP.wdtEnable(WDTO_500MS);
                 UI::SetIMUStatus(IMUID, IMUs[IMUID]->isWorking() ? true : false);
                 Serial.println(" Complete");
@@ -231,27 +276,26 @@ uint8_t SensorFactory::getMagnetometerDeviceID(uint8_t addr) // check lib\mpu925
 {
     uint8_t buffer[14];
 
-    // Set master mode to true
-    I2Cdev::writeBit(addr, 0x6A, 5, true);
-    delay(50);
+    // set up MPU 6050
+    I2Cdev::writeBits(addr, MPU9250_RA_PWR_MGMT_1, MPU9250_PWR1_CLKSEL_BIT, MPU9250_PWR1_CLKSEL_LENGTH, MPU9250_CLOCK_PLL_XGYRO);
+    I2Cdev::writeBit(addr, MPU9250_RA_PWR_MGMT_1, MPU9250_PWR1_SLEEP_BIT, false);
 
-    // Set up magnetometer as slave 0 for reading
-    I2Cdev::writeByte(addr, 0x25, 0x0D | 0x80);
-    delay(10);
-    // Start reading from WHO_AM_I register
-    I2Cdev::writeByte(addr, 0x26, 0x0D);
-    I2Cdev::writeByte(addr, 0x27, 0x81);
-    delay(10);
-    I2Cdev::readByte(addr, 0x49, buffer);
-    // return reading from HXL register
-    I2Cdev::writeByte(addr, 0x26, 0x00);
-    delay(10);
-    // Read 7 bytes (until ST2 register), group LSB and MSB
-    I2Cdev::writeByte(addr, 0x26, 0x96);
-    delay(50);
+    delay(100);
 
-    // Set master mode to false
-    I2Cdev::writeBit(addr, 0x6A, 5, false);
-
+    // disable master mode
+    I2Cdev::writeBit(addr, MPU9250_RA_USER_CTRL, MPU9250_USERCTRL_I2C_MST_EN_BIT, false);
+    delay(100);
+    // enable bypass mode
+    I2Cdev::writeBit(addr, MPU9250_RA_INT_PIN_CFG, MPU9250_INTCFG_I2C_BYPASS_EN_BIT, true);
+    delay(100);
+    // read nothing
+    I2Cdev::readByte(0x0D, 0x00, buffer);
+    delay(10);
+    // read whoami
+    I2Cdev::readByte(0x0D, 0x0D, buffer);
+    delay(100);
+    // disable bypass mode
+    I2Cdev::writeBit(addr, MPU9250_RA_INT_PIN_CFG, MPU9250_INTCFG_I2C_BYPASS_EN_BIT, false);
+    delay(100);
     return buffer[0];
 }

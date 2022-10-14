@@ -35,13 +35,7 @@
 #define serialBaudRate 115200
 #define UPDATE_IMU_UNCONNECTED 1
 #define SEND_UPDATES_UNCONNECTED 1
-#define LED_INTERVAL_STANDBUY 10000
 #define STATUS_PRINT_INTERVAL 15000
-#define ENABLE_LEDS true
-
-#define LOADING_LED D6
-#define CALIBRATING_LED D7
-#define STATUS_LED D8
 
 // Determines how often we sample and send data
 #define samplingRateInMillis 12
