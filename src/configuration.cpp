@@ -29,8 +29,10 @@ namespace Octo_SlimeVR
 {
     namespace Configuration
     {
-        DeviceConfig config{};
+
+
         bool configLoaded;
+        DeviceConfig Octo_Slime_Config;
 
         void initializeConfig()
         {
@@ -59,14 +61,14 @@ namespace Octo_SlimeVR
 
         void setConfig(const DeviceConfig &newConfig)
         {
-            config = newConfig;
+            Octo_Slime_Config = newConfig;
             saveConfig();
         }
 
         void saveConfig()
         {
             EEPROM.put(0, true);
-            EEPROM.put(1, config);
+            EEPROM.put(1, Octo_Slime_Config);
             EEPROM.commit();
         }
     }

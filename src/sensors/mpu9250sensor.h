@@ -26,7 +26,6 @@
 
 #include "sensor.h"
 
-#include "configuration.h"
 #include "sensors/CalibrationConfig.h"
 
 #include <1efilter.cc>

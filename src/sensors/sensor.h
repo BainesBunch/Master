@@ -27,7 +27,6 @@
 #include <Arduino.h>
 #include <quat.h>
 #include <vector3.h>
-#include "configuration.h"
 #include "globals.h"
 
 #define DATA_TYPE_NORMAL 1

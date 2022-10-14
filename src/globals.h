@@ -28,7 +28,7 @@
 #include "debug.h"
 #include "defines.h"
 #include "UI\UI.h"
-#include "Configuration.h"
+
 
 
 #endif // SLIMEVR_GLOBALS_H_

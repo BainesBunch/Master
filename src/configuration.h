@@ -41,8 +41,6 @@ namespace Octo_SlimeVR
         void saveConfig();
         void initializeConfig();
 
-       extern const DeviceConfig Octo_Slime_Config;
-
     }
 }
 #endif // SLIMEVR_CONFIG_H_
