@@ -21,15 +21,12 @@
     THE SOFTWARE.
 */
 
-
-
 #include <EEPROM.h>
 #include "configuration.h"
 namespace Octo_SlimeVR
 {
     namespace Configuration
     {
-
 
         bool configLoaded;
         DeviceConfig Octo_Slime_Config;
@@ -71,5 +68,39 @@ namespace Octo_SlimeVR
             EEPROM.put(1, Octo_Slime_Config);
             EEPROM.commit();
         }
+
+        void SetWIFI(const char *ssid, const char *passphrase)
+        {
+
+            if (strlen(ssid) == 32)
+                memcpy(reinterpret_cast<char *>(Octo_Slime_Config.SSID), ssid, 32);
+            else
+                strcpy(reinterpret_cast<char *>(Octo_Slime_Config.SSID), ssid);
+
+            if (passphrase)
+            {
+                if (strlen(passphrase) == 64) 
+                    memcpy(reinterpret_cast<char *>(Octo_Slime_Config.Pass), passphrase, 64);
+                else
+                    strcpy(reinterpret_cast<char *>(Octo_Slime_Config.Pass), passphrase);
+            }
+            else
+            {
+                *Octo_Slime_Config.Pass = 0;
+            }
+            saveConfig();
+        }
+
+        void SetHapticsEnabled(bool Active)
+        {
+            Octo_Slime_Config.UseHaptics = Active;
+            saveConfig();
+        }
+
+        bool GetHapticsEnabled()
+        {
+            return Octo_Slime_Config.UseHaptics;
+        }
+
     }
 }
