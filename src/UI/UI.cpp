@@ -131,6 +131,28 @@ void setBatStatus(float level)
     DrawFrame();
 }
 
+void DrawConfig()
+{
+
+    oled.clear();
+    oled.setScale(1);
+
+    oled.setCursorXY(11, 6);
+    oled.print(F("Setup Mode"));
+
+    oled.setCursorXY(6, 20);
+    oled.print(F("Press Reset Button"));
+
+    oled.setCursorXY(30, 34);
+    oled.print(F("When Finished"));
+
+    oled.roundRect(0, 0, 127, 63, OLED_STROKE);
+    oled.update();
+
+
+}
+
+
 void DrawSplash()
 {
 

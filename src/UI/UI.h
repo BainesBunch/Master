@@ -20,4 +20,5 @@ namespace UI
     void DrawCalibrationProgress(float TotalSampleCount, float SampleCount);
     void DrawCalibrationComplete();
     void DrawCalibrationAdvice(uint8 imuID);
+    void DrawConfig();
 }

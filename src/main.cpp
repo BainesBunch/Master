@@ -29,10 +29,11 @@
 #include "credentials.h"
 #include <i2cscan.h>
 #include <i2Cdev.h>
-#include "serial/serialcommands.h"
 #include "batterymonitor.h"
 #include "UI\UI.h"
+#include "PC_Settings/PC_Settings.h"
 #include <MCP23017.h>
+
 
 #define INT_PIN1 D6
 #define INT_PIN2 D5
@@ -48,6 +49,11 @@ unsigned long blinkStart = 0;
 unsigned long loopTime = 0;
 unsigned long last_rssi_sample = 0;
 unsigned long last_Haptic_Heartbeat = millis() + 5000;
+
+unsigned long BootSeconds;
+boolean ConfigMode;
+
+
 
 bool secondImuActive = false;
 BatteryMonitor battery;
@@ -76,7 +82,6 @@ void setup()
 {
 
     Serial.begin(serialBaudRate);
-    SerialCommands::setUp();
     Serial.println();
     Serial.println();
     Serial.println();
@@ -108,7 +113,20 @@ void setup()
 
     Octo_SlimeVR::Configuration::getConfig();
 
-    delay(1500);
+    	BootSeconds = millis() + 5000;
+
+    ConfigMode = false;
+	while (BootSeconds > millis())
+	{
+        
+		if (PC_Settings::CheckForPCCommands())
+		{
+			if (!ConfigMode) UI::DrawConfig();
+			ConfigMode = true;
+		}
+	}
+
+
 
     UI::MainUIFrame();
     UI::SetMessage(6);
@@ -164,8 +182,6 @@ void setup()
 
 void loop()
 {
-    // Serial.println("Serial update");
-    SerialCommands::update();
     // Serial.println("network update");
     Network::update(sensors.IMUs);
     // Serial.println("motionloop");
