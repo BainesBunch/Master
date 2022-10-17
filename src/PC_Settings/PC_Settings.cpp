@@ -15,6 +15,7 @@ namespace PC_Settings
     uint16 CommandPointer = 0;
     char CommandIn[70];
     char PayloadValue[70];
+    char OPBuff[100];
 
     boolean CheckForPCCommands()
     {
@@ -24,12 +25,15 @@ namespace PC_Settings
             while (Serial.available() > 0)
             {
                 Inchar = Serial.read();
+
                 if ((int)Inchar > 31 || (char)Inchar == '\r' || (char)Inchar == '\n')
                 {
                     if ((char)Inchar == '\r' || (char)Inchar == '\n')
                     {
                         if (CommandPointer > 0)
+                        {
                             PC_Settings::ProcessPCResponseString();
+                        }
                         CommandPointer = 0;
                         while (Serial.available() > 0)
                             Serial.read();
@@ -41,7 +45,6 @@ namespace PC_Settings
                             CommandIn[CommandPointer++] = ((char)Inchar);
                     }
                 }
-
                 if (Serial.available() == 0)
                     delay(50);
             }
@@ -69,20 +72,24 @@ namespace PC_Settings
         {
 
         case 'Q':
+           // UI::WriteMessage("Data Request");
             PC_Settings::SendConfigData();
             CommandPointer = 0;
             return;
             break;
 
         case 'S':
+            //UI::WriteMessage("Setting SSID");
             Octo_SlimeVR::Configuration::SetSSID(PayloadValue);
             break;
 
         case 'P':
+           // UI::WriteMessage("Setting Password");
             Octo_SlimeVR::Configuration::SetPassword(PayloadValue);
             break;
 
         case 'H':
+            //UI::WriteMessage("Setting Haptic Flag");
             Octo_SlimeVR::Configuration::SetHapticsEnabled(PayloadValue);
             break;
         }
