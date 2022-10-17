@@ -137,13 +137,16 @@ void DrawConfig()
     oled.clear();
     oled.setScale(1);
 
-    oled.setCursorXY(11, 6);
+    oled.setCursorXY(32, 8);
     oled.print(F("Setup Mode"));
 
-    oled.setCursorXY(6, 20);
-    oled.print(F("Press Reset Button"));
+    oled.setCursorXY(7, 22);
+    oled.print(F("Press Reboot Button"));
 
-    oled.setCursorXY(30, 34);
+    oled.setCursorXY(4, 36);
+    oled.print(F("On Configuration App"));
+
+    oled.setCursorXY(28, 50);
     oled.print(F("When Finished"));
 
     oled.roundRect(0, 0, 127, 63, OLED_STROKE);
@@ -261,7 +264,7 @@ void DrawCalibrationAdvice(uint8 imuID)
 {
     oled.clear();
     oled.setScale(1);
-    oled.setCursorXY(9, 16);
+    oled.setCursorXY(7, 16);
     oled.print(F("Calibration advised"));
     oled.setCursorXY(55, 28);
     oled.print(F("for"));

@@ -116,7 +116,7 @@ void setup()
     	BootSeconds = millis() + 5000;
 
     ConfigMode = false;
-	while (BootSeconds > millis())
+	while (BootSeconds > millis() || ConfigMode)
 	{
         
 		if (PC_Settings::CheckForPCCommands())
