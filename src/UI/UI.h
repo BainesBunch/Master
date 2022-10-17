@@ -21,4 +21,5 @@ namespace UI
     void DrawCalibrationComplete();
     void DrawCalibrationAdvice(uint8 imuID);
     void DrawConfig();
+    void WriteMessage(const char *Message);
 }
